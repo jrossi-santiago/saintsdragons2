@@ -41,7 +41,7 @@ export default function Shelf() {
           Print the short list
         </Link>
       </header>
-      <p className="quiet">Put one on the floor tonight.</p>
+      <p className="quiet">Books dense enough that a kid will sit still without a screen.</p>
       <main className="shelf">
         {collections.map((c) => (
           <Collection key={c.name} name={c.name} books={c.books} n={n} onOpen={onOpen} />

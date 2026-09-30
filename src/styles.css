@@ -227,6 +227,8 @@ button.spine:focus-visible { outline-offset: -3px; }
 
 /* ---------- shelf ---------- */
 .shelf-page { min-height: 100vh; padding-bottom: 80px; }
+/* Bar, subtitle and covers share one 1160px column so their left edges line up. */
+.shelf-page .bar { max-width: 1160px; margin: 0 auto; }
 .shelf-page .quiet { max-width: 1160px; margin: 0 auto; }
 .quiet { margin: 0; padding: 0 28px; font: italic 15px var(--serif); color: var(--dim); }
 .shelf { max-width: 1160px; margin: 0 auto; padding: 0 28px; }
@@ -301,7 +303,8 @@ button.spine:focus-visible { outline-offset: -3px; }
 .typo em { font: italic 400 0.75em var(--serif); opacity: 0.8; }
 @media (max-width: 720px) {
   .bar { padding: 16px 16px; }
-  .quiet { padding: 0 16px; }
+  .shelf-page .bar { padding: 16px 12px; }
+  .quiet { padding: 0 12px; }
   .shelf { padding: 0 12px; }
   .covers > li { padding: 0 7px; }
 }
