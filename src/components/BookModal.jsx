@@ -12,6 +12,7 @@ function Cover({ book }) {
 function Viewer({ book }) {
   const [dead, setDead] = useState(() => new Set());
   const [i, setI] = useState(0);
+  const [pages, setPages] = useState(false); // Google Books page-flipper instead of the cover
   const start = useRef(null);
   const urls = book.images.filter((u) => !dead.has(u));
   const n = urls.length;
@@ -20,7 +21,7 @@ function Viewer({ book }) {
 
   // Arrow keys are wired on the dialog; expose stepping through a ref-less event.
   useEffect(() => {
-    if (n < 2) return;
+    if (n < 2 || pages) return;
     const onKey = (e) => {
       if (e.key === "ArrowLeft") step(-1);
       else if (e.key === "ArrowRight") step(1);
@@ -39,6 +40,25 @@ function Viewer({ book }) {
 
   return (
     <div className="viewer">
+      {book.previewId && (
+        <div className="modes">
+          <button type="button" aria-pressed={!pages} onClick={() => setPages(false)}>
+            Cover
+          </button>
+          <button type="button" aria-pressed={pages} onClick={() => setPages(true)}>
+            Flip through it
+          </button>
+        </div>
+      )}
+      {pages ? (
+        <div className="stage pages">
+          <iframe
+            title={`Inside ${book.title}`}
+            src={`https://books.google.com/books?id=${encodeURIComponent(book.previewId)}&lpg=PP1&pg=PP1&output=embed`}
+            sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"
+          />
+        </div>
+      ) : (
       <div
         className="stage"
         style={{ "--c": book.spineColor }}
@@ -70,7 +90,9 @@ function Viewer({ book }) {
           </>
         )}
       </div>
-      {n > 1 && (
+      )}
+      {pages && <p className="count">Sample pages from Google Books. Not the whole book.</p>}
+      {!pages && n > 1 && (
         <p className="count" aria-live="polite">
           {idx + 1} / {n}
         </p>

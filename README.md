@@ -65,6 +65,27 @@ On a failed POST the visitor sees an error and stays on the landing page.
   site data or run `localStorage.removeItem("getLostShelf")` and delete the cookie.
 - Safari deletes script-set storage and cookies after about 7 days without a visit to the site.
 
+## Flip-through previews (Google Books)
+
+Books with an embeddable Google Books preview get a **Cover / Flip through it** toggle in the modal. "Flip through it"
+loads Google's own page viewer in an iframe (next/previous, zoom, search), only when tapped, straight from the
+visitor's browser to Google. Nothing is fetched at build time. Previews are partial: Google shows a sample of the
+pages, not the whole book, and its viewer has its own branding and a "Buy this book" link.
+
+`data/previews.json` maps book id to a Google Books volume id. Regenerate it by hand when the book list changes:
+
+```
+node scripts/find-previews.mjs     # Node 22+; searches Google Books, writes data/previews.json
+```
+
+It matches on the full title plus author and records what it matched (`matchedTitle`, `matchedAuthors`,
+`sameIsbn`) so you can eyeball it. Most matches are a different edition of the same title, which is fine for a
+sample. Fix or remove a bad entry by hand, or set `previewId` for a book in `overrides.json`.
+
+Coverage today: 13 of 60 (Macaulay's Castle and Cathedral, and 11 My Big Wimmelbook titles). Biesty, Mitgutsch,
+Rothman, Scarry and Brambly Hedge have no Google preview. Esc closes the modal unless focus is inside the viewer;
+the X and a click outside always work.
+
 ## Covers
 
 Covers sit in rows of 5 (4, 3 or 2 on smaller screens), each row on its own shelf line; scroll down for more. Each
