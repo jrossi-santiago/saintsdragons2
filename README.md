@@ -9,7 +9,7 @@ npm run build      # static site in dist/
 ```
 
 Routes: `/` (landing + email gate), `/shelf`, `/print`. Anything else redirects to `/`.
-Static hosts need an SPA fallback to `index.html`; `public/_redirects` covers Netlify/Cloudflare Pages.
+Static hosts need an SPA fallback to `index.html`; `public/_redirects` covers Netlify/Cloudflare Pages and `vercel.json` covers Vercel (without it, a hard refresh on `/shelf` is a 404).
 
 ## Books: drop new data in `/data`
 
