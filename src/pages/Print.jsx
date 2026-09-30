@@ -20,7 +20,7 @@ export default function Print() {
         </button>
       </div>
       <h1>The Get-Lost Shelf</h1>
-      <p className="print-sub">Put one on the floor tonight. No timer. No deal.</p>
+      <p className="print-sub">Books dense enough that a kid will sit still without a screen.</p>
       <div className="print-cols">
         {collections.map((s) => (
           <section key={s.name}>
