@@ -182,7 +182,7 @@ button.spine:focus-visible { outline-offset: -3px; }
   color: var(--accent);
 }
 .pitch p { margin: 0 0 18px; color: #cfc8b6; }
-.pitch .floor { color: var(--ink); font-weight: 600; }
+.pitch .nudge { color: var(--ink); font-weight: 600; }
 .pitch .reason { margin-top: 30px; color: var(--dim); font-size: 15px; }
 .name, .field input {
   padding: 13px 14px;

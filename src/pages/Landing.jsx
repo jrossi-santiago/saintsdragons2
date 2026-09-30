@@ -85,7 +85,7 @@ export default function Landing() {
           attention show up as a side effect. Nobody lectures. Nobody sells a worldview. Just old
           paper full of tiny worlds.
         </p>
-        <p className="floor">Put one book on the floor after dinner. No timer. No deal.</p>
+        <p className="nudge">Hand a kid one of these books and let the hour disappear. No timer. No deal.</p>
         <p className="reason">
           Unlock the shelf. I’ll send you in and a one-page printable list so you can use it tonight.
           No drip. No video course.
