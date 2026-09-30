@@ -12,9 +12,13 @@ function Cover({ book }) {
 function Viewer({ book }) {
   const [dead, setDead] = useState(() => new Set());
   const [i, setI] = useState(0);
-  const [pages, setPages] = useState(false); // Google Books page-flipper instead of the cover
+  const [mode, setMode] = useState("cover"); // "cover" | "google" | "video"
+  const pages = mode !== "cover";
   const start = useRef(null);
-  const urls = book.images.filter((u) => !dead.has(u));
+  const modes = [["cover", book.pages.length ? "Cover & pages" : "Cover"]];
+  if (book.previewId) modes.push(["google", "Flip through it"]);
+  if (book.videoId) modes.push(["video", "Watch a flip-through"]);
+  const urls = [...book.images, ...book.pages].filter((u) => !dead.has(u));
   const n = urls.length;
   const idx = Math.min(i, Math.max(n - 1, 0));
   const step = (d) => setI((idx + d + n) % n);
@@ -40,22 +44,31 @@ function Viewer({ book }) {
 
   return (
     <div className="viewer">
-      {book.previewId && (
+      {modes.length > 1 && (
         <div className="modes">
-          <button type="button" aria-pressed={!pages} onClick={() => setPages(false)}>
-            Cover
-          </button>
-          <button type="button" aria-pressed={pages} onClick={() => setPages(true)}>
-            Flip through it
-          </button>
+          {modes.map(([key, label]) => (
+            <button key={key} type="button" aria-pressed={mode === key} onClick={() => setMode(key)}>
+              {label}
+            </button>
+          ))}
         </div>
       )}
-      {pages ? (
+      {mode === "google" ? (
         <div className="stage pages">
           <iframe
             title={`Inside ${book.title}`}
             src={`https://books.google.com/books?id=${encodeURIComponent(book.previewId)}&lpg=PP1&pg=PP1&output=embed`}
             sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"
+          />
+        </div>
+      ) : mode === "video" ? (
+        <div className="stage video">
+          <iframe
+            title={`Flip-through video: ${book.title}`}
+            src={`https://www.youtube-nocookie.com/embed/${encodeURIComponent(book.videoId)}?rel=0&modestbranding=1`}
+            allow="accelerometer; encrypted-media; picture-in-picture; fullscreen"
+            allowFullScreen
+            sandbox="allow-scripts allow-same-origin allow-popups allow-presentation"
           />
         </div>
       ) : (
@@ -91,7 +104,8 @@ function Viewer({ book }) {
         )}
       </div>
       )}
-      {pages && <p className="count">Sample pages from Google Books. Not the whole book.</p>}
+      {mode === "google" && <p className="count">Sample pages from Google Books. Not the whole book.</p>}
+      {mode === "video" && <p className="count">Video from YouTube.</p>}
       {!pages && n > 1 && (
         <p className="count" aria-live="polite">
           {idx + 1} / {n}

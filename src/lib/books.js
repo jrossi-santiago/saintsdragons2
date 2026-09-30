@@ -1,6 +1,8 @@
 import booksJson from "../../data/books.json";
 import overridesJson from "../../data/overrides.json";
 import previewsJson from "../../data/previews.json";
+import pagesJson from "../../data/pages.json";
+import videosJson from "../../data/videos.json";
 import { hash } from "./hash.js";
 
 export const FALLBACK_COLLECTION = "Also on the shelf";
@@ -66,6 +68,12 @@ function build() {
       collection: collectionOf({ ...b, title }),
       oneLiner: (b.oneLiner || "").trim(),
       images: (Array.isArray(b.images) ? b.images : []).filter(Boolean),
+      // Your own page photos (npm run pages), shown after the cover in the modal.
+      pages: (Array.isArray(b.pages) ? b.pages : pagesJson[b.id] || []).map((u) =>
+        /^(https?:)?\/\//.test(u) ? u : import.meta.env.BASE_URL + u.replace(/^\//, "")
+      ),
+      // YouTube flip-through video id (data/videos.json: { "<bookId>": "<videoId>" }).
+      videoId: (b.videoId || videosJson[b.id] || "").trim(),
       // Google Books volume id with an embeddable preview (data/previews.json; override with `previewId`).
       previewId: (b.previewId || previewsJson[b.id]?.volumeId || "").trim(),
       spineColor: /^#[0-9a-f]{6}$/i.test(b.spineColor || "")

@@ -65,12 +65,29 @@ On a failed POST the visitor sees an error and stays on the landing page.
   site data or run `localStorage.removeItem("getLostShelf")` and delete the cookie.
 - Safari deletes script-set storage and cookies after about 7 days without a visit to the site.
 
-## Flip-through previews (Google Books)
+## Showing inside pages
 
-Books with an embeddable Google Books preview get a **Cover / Flip through it** toggle in the modal. "Flip through it"
-loads Google's own page viewer in an iframe (next/previous, zoom, search), only when tapped, straight from the
-visitor's browser to Google. Nothing is fetched at build time. Previews are partial: Google shows a sample of the
-pages, not the whole book, and its viewer has its own branding and a "Buy this book" link.
+The modal can show three kinds of "inside the book", each a tab that only appears when a book has it. None of
+this touches Amazon's Look Inside pages (Amazon's terms and the publishers' copyright both rule that out).
+
+| Source | Coverage today | How |
+| --- | --- | --- |
+| **Your own page photos** | none yet | `photos/<bookId>/*.jpg`, then `npm run pages` |
+| **Google Books preview** | 13 of 60 | `node scripts/find-previews.mjs` |
+| **YouTube flip-through video** | none yet | `YOUTUBE_API_KEY=... node scripts/find-videos.mjs`, then pick |
+
+### Your own photos (works for every book)
+
+Snap 3-6 spreads of a book you own, phone camera is fine. Drop them in `photos/<bookId>/` (ids are in
+`data/books.json`; `photos/` is gitignored), then run `npm run pages`. It fixes rotation, resizes to 1600px,
+writes `public/pages/<bookId>/N.webp` and `data/pages.json`. Commit those two. The modal shows them after the
+cover with arrows, swipe and keyboard. Export photos as JPEG or PNG (iPhone HEIC isn't read).
+
+### Google Books preview
+
+Books with an embeddable Google Books preview get a **Flip through it** tab: Google's own page viewer in an
+iframe (next/previous, zoom, search), loaded only when tapped, straight from the visitor's browser to Google.
+Previews are partial samples with Google's branding.
 
 `data/previews.json` maps book id to a Google Books volume id. Regenerate it by hand when the book list changes:
 
@@ -78,13 +95,18 @@ pages, not the whole book, and its viewer has its own branding and a "Buy this b
 node scripts/find-previews.mjs     # Node 22+; searches Google Books, writes data/previews.json
 ```
 
-It matches on the full title plus author and records what it matched (`matchedTitle`, `matchedAuthors`,
-`sameIsbn`) so you can eyeball it. Most matches are a different edition of the same title, which is fine for a
-sample. Fix or remove a bad entry by hand, or set `previewId` for a book in `overrides.json`.
+It records what it matched (`matchedTitle`, `matchedAuthors`, `sameIsbn`) so you can eyeball it. Most matches are
+a different edition of the same title, which is fine for a sample. Fix a bad entry by hand, or set `previewId`
+in `overrides.json`. Covered today: Macaulay's Castle and Cathedral, and 11 My Big Wimmelbook titles. Esc doesn't
+close the modal while focus is inside the viewer; the X and a click outside always work.
 
-Coverage today: 13 of 60 (Macaulay's Castle and Cathedral, and 11 My Big Wimmelbook titles). Biesty, Mitgutsch,
-Rothman, Scarry and Brambly Hedge have no Google preview. Esc closes the modal unless focus is inside the viewer;
-the X and a click outside always work.
+### YouTube flip-through videos
+
+Flip-through videos exist for most dense illustrated books. `scripts/find-videos.mjs` searches YouTube for each
+book and writes the top 4 candidates to `data/video-candidates.json` (title, channel, link). It needs a free
+YouTube Data API key and was not run or tested against the live API. You watch and choose; put winners in
+`data/videos.json` as `{ "<bookId>": "<videoId>" }`. Videos play in a privacy-enhanced embed
+(youtube-nocookie.com).
 
 ## Covers
 
