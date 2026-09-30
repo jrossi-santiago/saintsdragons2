@@ -2,19 +2,19 @@ import booksJson from "../../data/books.json";
 import overridesJson from "../../data/overrides.json";
 import { hash } from "./hash.js";
 
-export const FALLBACK_SHELF = "The shelf";
+export const FALLBACK_COLLECTION = "Also on the shelf";
 
-// Display order. Anything not listed here lands under FALLBACK_SHELF.
-const SHELF_ORDER = [
-  "Start here",
-  "Buildings & machines",
-  "Ships, cities & bodies",
-  "Nature & how it’s made",
-  "Search & stare",
-  FALLBACK_SHELF,
-];
+// Collections are derived from the data, never invented: an explicit `collection` field wins,
+// then the Wimmelbook series, then the illustrator ("... illustrated by X"), then the lead author.
+function collectionOf(b) {
+  if (typeof b.collection === "string" && b.collection.trim()) return b.collection.trim();
+  if (/^my (big|little) wimmelbook/i.test(b.title)) return "Wimmelbooks";
+  const author = (b.author || "").trim();
+  const illus = author.match(/illustrated by\s+(.+)$/i);
+  if (illus) return illus[1].trim();
+  return author.split(/\s+and\s+|,\s*/)[0] || FALLBACK_COLLECTION;
+}
 
-const norm = (s) => String(s ?? "").replace(/[’‘]/g, "'").trim().toLowerCase();
 const isBlank = (v) =>
   v == null || (typeof v === "string" && v.trim() === "") || (Array.isArray(v) && v.length === 0);
 
@@ -57,13 +57,12 @@ function build() {
     const title = (b.title || "").trim();
     // No title, no spine. These stay in data/ until overrides.json names them.
     if (!title) continue;
-    const shelfKey = SHELF_ORDER.find((s) => norm(s) === norm(b.shelf));
     books.push({
       id: b.id,
       title,
       author: (b.author || "").trim(),
       amazonUrl: b.amazonUrl || "",
-      shelf: shelfKey || FALLBACK_SHELF,
+      collection: collectionOf({ ...b, title }),
       oneLiner: (b.oneLiner || "").trim(),
       images: (Array.isArray(b.images) ? b.images : []).filter(Boolean),
       spineColor: /^#[0-9a-f]{6}$/i.test(b.spineColor || "")
@@ -76,7 +75,22 @@ function build() {
 
 export const books = build();
 
-export const shelves = SHELF_ORDER.map((name) => ({
-  name,
-  books: books.filter((b) => b.shelf === name),
-})).filter((s) => s.books.length > 0);
+// One shelf, sectioned by collection. Biggest first; one-book collections share a closing row.
+function group() {
+  const map = new Map();
+  for (const b of books) {
+    if (!map.has(b.collection)) map.set(b.collection, []);
+    map.get(b.collection).push(b);
+  }
+  const rest = [];
+  const out = [];
+  for (const [name, list] of map) {
+    if (list.length < 2 || name === FALLBACK_COLLECTION) rest.push(...list);
+    else out.push({ name, books: list });
+  }
+  out.sort((x, y) => y.books.length - x.books.length || x.name.localeCompare(y.name));
+  if (rest.length) out.push({ name: FALLBACK_COLLECTION, books: rest });
+  return out;
+}
+
+export const collections = group();

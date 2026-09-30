@@ -1,14 +1,15 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, Navigate } from "react-router-dom";
 import { isUnlocked } from "../lib/gate.js";
-import { shelves } from "../lib/books.js";
-import ShelfRow from "../components/ShelfRow.jsx";
+import { collections } from "../lib/books.js";
+import Collection, { useColumns } from "../components/Collection.jsx";
 import BookModal from "../components/BookModal.jsx";
 
 export default function Shelf() {
   const [open, setOpen] = useState(null);
   const trigger = useRef(null);
   const timer = useRef(0);
+  const n = useColumns();
 
   useEffect(() => () => clearTimeout(timer.current), []);
 
@@ -41,9 +42,9 @@ export default function Shelf() {
         </Link>
       </header>
       <p className="quiet">Put one on the floor tonight.</p>
-      <main>
-        {shelves.map((s) => (
-          <ShelfRow key={s.name} name={s.name} books={s.books} onOpen={onOpen} />
+      <main className="shelf">
+        {collections.map((c) => (
+          <Collection key={c.name} name={c.name} books={c.books} n={n} onOpen={onOpen} />
         ))}
       </main>
       {open && <BookModal book={open} onClose={onClose} />}

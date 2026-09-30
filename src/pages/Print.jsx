@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { Link, Navigate } from "react-router-dom";
 import { isUnlocked } from "../lib/gate.js";
-import { shelves } from "../lib/books.js";
+import { collections } from "../lib/books.js";
 
 export default function Print() {
   useEffect(() => {
@@ -22,7 +22,7 @@ export default function Print() {
       <h1>The Get-Lost Shelf</h1>
       <p className="print-sub">Put one on the floor tonight. No timer. No deal.</p>
       <div className="print-cols">
-        {shelves.map((s) => (
+        {collections.map((s) => (
           <section key={s.name}>
             <h2>{s.name}</h2>
             <ul>

@@ -1,6 +1,6 @@
 # The Get-Lost Shelf
 
-Email gate, then a dark spine-only bookshelf of dense illustrated kids' books. Vite + React, fully static.
+Email gate, then one dark bookshelf of front covers, sectioned by author/collection. Vite + React, fully static.
 
 ```
 npm install
@@ -31,11 +31,16 @@ Merge (`src/lib/books.js`): `books.json` is mapped by `id`, then each key in `ov
 - **Books with no title are hidden** (currently `B0B18JKWCL` and `0440840600`). Fill `title` and `author` for
   them in `overrides.json` and they appear. Override ids that aren't in `books.json` are ignored.
 
-Missing fields: no `images` gives a typographic cover in the modal; no `spineColor` gives a stable color from
-the title hash; unknown or empty `shelf` goes under "The shelf"; empty `oneLiner` is simply omitted.
+Missing fields: no working `images` gives a typographic cover (title + author on `spineColor`); no `spineColor`
+gives a stable color from the title hash; empty `oneLiner` is simply omitted. The old `shelf` field is no longer used.
 `amazonUrl` is used exactly as written, affiliate `tag=` params included.
 
-Shelf order is set in `SHELF_ORDER` in `src/lib/books.js`.
+### Shelf sections
+
+There is one shelf, sectioned by collection (`src/lib/books.js`). A book's collection is, in order: an explicit
+`collection` field (set it in `overrides.json` to move a book), the Wimmelbook series, the illustrator from
+"illustrated by X", or the lead author. Biggest collections come first; one-book collections share a closing
+"Also on the shelf" row. The print list uses the same sections.
 
 ## Email: `EMAIL_ENDPOINT` (Formspree)
 
@@ -60,9 +65,11 @@ On a failed POST the visitor sees an error and stays on the landing page.
   site data or run `localStorage.removeItem("getLostShelf")` and delete the cookie.
 - Safari deletes script-set storage and cookies after about 7 days without a visit to the site.
 
-## Spines
+## Covers
 
-Width, height, lean (±1.2°) and title size come from a hash of the book `id` (`src/lib/spine.js`), so they're
-stable across reloads, and all spine geometry is fixed up front so nothing shifts while images load. Spines
-never load images; covers appear only in the modal, and an image that fails or comes back as Amazon's 1×1
-placeholder is skipped.
+Covers sit in rows of 5 (4, 3 or 2 on smaller screens), each row on its own shelf line; scroll down for more. Each
+cover box is a fixed 3:4 from first paint so nothing jumps. Images load as you scroll near them. The first
+`images[]` entry that loads is the cover (Amazon's 1x1 "no image" placeholder counts as a miss); if none do,
+the typographic cover stays. Clicking a cover opens the modal with all images.
+
+The landing page's dim background still uses generated spines (`src/lib/spine.js`).

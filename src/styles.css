@@ -227,34 +227,83 @@ button.spine:focus-visible { outline-offset: -3px; }
 
 /* ---------- shelf ---------- */
 .shelf-page { min-height: 100vh; padding-bottom: 80px; }
+.shelf-page .quiet { max-width: 1160px; margin: 0 auto; }
 .quiet { margin: 0; padding: 0 28px; font: italic 15px var(--serif); color: var(--dim); }
-.row { padding: 34px 28px 0; }
+.shelf { max-width: 1160px; margin: 0 auto; padding: 0 28px; }
+.collection { padding-top: 40px; }
 .row-label {
-  margin: 0 0 6px;
+  margin: 0 0 18px;
   font: 600 12px/1 var(--sans);
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--dim);
 }
-.row-scroll { padding-top: 6px; }
+/* every row is n equal cells; the row's bottom border is the shelf edge the covers stand on */
+.covers {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(var(--n), minmax(0, 1fr));
+  padding-top: 26px;
+  border-bottom: 1px solid #3b3832;
+}
+.covers:first-of-type { padding-top: 8px; }
+.covers > li { padding: 0 11px; min-width: 0; }
+.book {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  color: inherit;
+  transition: transform 0.16s ease-out, filter 0.16s ease-out;
+  filter: brightness(0.86);
+  -webkit-tap-highlight-color: transparent;
+}
+.book:hover,
+.book:focus-visible,
+.book.lifted { transform: translateY(-8px); filter: brightness(1.08); }
+.book:focus-visible { outline-offset: 4px; }
+.cover {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+}
+.cover img {
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.7);
+}
+.typo {
+  width: 100%;
+  height: 100%;
+  padding: 18px 14px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 8px;
+  text-align: center;
+  font: 600 clamp(14px, 1.6vw, 19px) / 1.2 var(--serif);
+  color: #f1e7d0;
+  background-color: var(--c);
+  background-image: linear-gradient(90deg, rgba(255, 255, 255, 0.18), transparent 3%, transparent 90%, rgba(0, 0, 0, 0.35)),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(0, 0, 0, 0.25));
+  overflow: hidden;
+}
+.typo em { font: italic 400 0.75em var(--serif); opacity: 0.8; }
 @media (max-width: 720px) {
   .bar { padding: 16px 16px; }
   .quiet { padding: 0 16px; }
-  .row { padding: 28px 0 0; }
-  .row-label { padding: 0 16px; }
-  .row-scroll {
-    overflow-x: auto;
-    overflow-y: hidden;
-    padding: 6px 16px 0;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: thin;
-    scrollbar-color: #2e2b25 transparent;
-  }
-  .row-scroll .spines {
-    flex-wrap: nowrap;
-    width: max-content;
-    min-width: 100%;
-  }
+  .shelf { padding: 0 12px; }
+  .covers > li { padding: 0 7px; }
 }
 
 /* ---------- modal ---------- */
