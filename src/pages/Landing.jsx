@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
 import { isUnlocked, unlock } from "../lib/gate.js";
 import { books } from "../lib/books.js";
@@ -16,16 +16,26 @@ function backdropBooks(max = 34) {
 
 export default function Landing() {
   const navigate = useNavigate();
+  const [firstName, setFirstName] = useState("");
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+  const honeypot = useRef(null);
   const back = useMemo(() => backdropBooks(), []);
 
+  // A link like https://your-site/?back=1 (e.g. in a confirmation email) re-opens the shelf
+  // on a new device or after cleared storage.
+  if (new URLSearchParams(window.location.search).has("back")) unlock();
   if (isUnlocked()) return <Navigate to="/shelf" replace />;
 
   async function submit(e) {
     e.preventDefault();
     const value = email.trim();
+    const name = firstName.trim();
+    if (!name) {
+      setError("What’s your first name?");
+      return;
+    }
     if (!EMAIL_RE.test(value)) {
       setError("That doesn’t look like an email.");
       return;
@@ -37,11 +47,11 @@ export default function Landing() {
         const res = await fetch(ENDPOINT, {
           method: "POST",
           headers: { "Content-Type": "application/json", Accept: "application/json" },
-          body: JSON.stringify({ email: value, source: "get-lost-shelf" }),
+          body: JSON.stringify({ name, email: value, _gotcha: honeypot.current?.value || "" }),
         });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
       } else {
-        console.log("[get-lost-shelf] EMAIL_ENDPOINT not set; unlocking locally:", value);
+        console.log("[get-lost-shelf] EMAIL_ENDPOINT not set; unlocking locally:", { name, email: value });
       }
       unlock();
       navigate("/shelf", { replace: true });
@@ -81,6 +91,17 @@ export default function Landing() {
           No drip. No video course.
         </p>
         <form onSubmit={submit} noValidate>
+          <input
+            className="name"
+            type="text"
+            name="name"
+            autoComplete="given-name"
+            placeholder="First name"
+            aria-label="First name"
+            value={firstName}
+            onChange={(e) => setFirstName(e.target.value)}
+          />
+          <input ref={honeypot} className="hp" type="text" name="_gotcha" tabIndex={-1} autoComplete="off" aria-hidden="true" />
           <div className="field">
             <input
               type="email"
@@ -90,8 +111,7 @@ export default function Landing() {
               placeholder="you@email.com"
               aria-label="Email"
               aria-invalid={error ? "true" : undefined}
-              aria-describedby={error ? "email-error" : undefined}
-              value={email}
+                            value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
             <button type="submit" disabled={busy}>

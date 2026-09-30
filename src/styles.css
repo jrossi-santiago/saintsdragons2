@@ -184,6 +184,18 @@ button.spine:focus-visible { outline-offset: -3px; }
 .pitch p { margin: 0 0 18px; color: #cfc8b6; }
 .pitch .floor { color: var(--ink); font-weight: 600; }
 .pitch .reason { margin-top: 30px; color: var(--dim); font-size: 15px; }
+.name, .field input {
+  padding: 13px 14px;
+  font-size: 16px;
+  color: var(--ink);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid #3a372f;
+  border-radius: 3px;
+}
+.name { display: block; width: 100%; margin-bottom: 8px; }
+.name::placeholder { color: #6e695c; }
+.name:focus { outline: 0; border-color: var(--accent); }
+.hp { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
 .field { display: flex; gap: 8px; flex-wrap: wrap; }
 .field input {
   flex: 1 1 240px;

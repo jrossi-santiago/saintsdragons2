@@ -37,21 +37,28 @@ the title hash; unknown or empty `shelf` goes under "The shelf"; empty `oneLiner
 
 Shelf order is set in `SHELF_ORDER` in `src/lib/books.js`.
 
-## Email: `EMAIL_ENDPOINT`
+## Email: `EMAIL_ENDPOINT` (Formspree)
 
-Copy `.env.example` to `.env` and set `EMAIL_ENDPOINT` to a URL that accepts a JSON POST:
-`{ "email": "...", "source": "get-lost-shelf" }`. It must allow CORS from your site. Any 2xx counts as success.
-It is read at build time and ends up in the client bundle, so use a write-only form endpoint, not a secret.
+The form collects first name and email and POSTs JSON `{ "name", "email", "_gotcha" }` to `EMAIL_ENDPOINT`
+(`_gotcha` is Formspree's honeypot field). Any 2xx counts as success.
 
-If `EMAIL_ENDPOINT` is empty, the email is `console.log`ged and the shelf unlocks anyway, so local preview works.
+- `.env.production` (committed) points at the Formspree form, so `npm run build` just works anywhere.
+- `npm run dev` does not read it. With no `EMAIL_ENDPOINT`, the name and email are `console.log`ged and the shelf
+  unlocks, so local testing never hits Formspree. Copy `.env.example` to `.env` to test against the real form.
+- The value is baked into the client bundle at build time. A Formspree endpoint is public by design.
+
 On a failed POST the visitor sees an error and stays on the landing page.
 
-## The gate is localStorage
+## The gate and "remember me"
 
-- Successful submit sets `localStorage.getLostShelf = "1"` and routes to `/shelf`.
-- `/` redirects to `/shelf` if the key exists. `/shelf` and `/print` redirect to `/` if it doesn't.
-- This is a lead-magnet gate, not auth. Anyone can set the key in dev tools. To re-test the landing page,
-  run `localStorage.removeItem("getLostShelf")`.
+- Successful submit sets `localStorage.getLostShelf = "1"` and a 1-year first-party cookie `getLostShelf=1`, then
+  routes to `/shelf`. If either one survives, the visitor is let back in (and the other is restored).
+- `/` redirects to `/shelf` if unlocked. `/shelf` and `/print` redirect to `/` if not.
+- `/?back=1` unlocks and opens the shelf. Put that link in a confirmation email so people can get back in on a new
+  device or after clearing their browser.
+- This is a lead-magnet gate, not auth. Anyone can set the key in dev tools. To re-test the landing page, clear
+  site data or run `localStorage.removeItem("getLostShelf")` and delete the cookie.
+- Safari deletes script-set storage and cookies after about 7 days without a visit to the site.
 
 ## Spines
 
